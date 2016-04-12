@@ -12,7 +12,7 @@ shinyUI( fluidPage(
           navbarPage("Amazon Movie Reviews",
           theme = "bootstrap3.css",
 ###################overview part###########################          
-          tabPanel("Overview",
+          tabPanel("Overview",icon=icon("film"),
               box(width=6,
                        img(src="movie2.jpg", width = 400)   
                    ),     
@@ -41,7 +41,7 @@ shinyUI( fluidPage(
 
 
  #################### xiaoyu s Menu Item ####################
-  tabPanel("Timelines",
+  tabPanel("Timelines",icon=icon("line-chart"),
            sidebarLayout(position="left",
              sidebarPanel(width = 2,
                         conditionalPanel(condition = "input.conditionedPanels == 0",
@@ -108,13 +108,63 @@ shinyUI( fluidPage(
   
  
  #################### ---- 's Menu Item ####################
- navbarMenu("Similarity",
+ navbarMenu("Similarity",icon=icon("area-chart"),
             tabPanel("Recommendation analysis",
+
+              mainPanel(
               plotlyOutput("recommap")
+              )
             ),
+
             tabPanel("Factor analysis",
-              plotlyOutput("gmap")
+                     sidebarLayout(position="left",
+                       sidebarPanel(
+                        h3("2D mapping of the movies"),
+                         helpText("We filter out the movies with > 100 reviews and project them into 2 dimensional space according to 
+                                  users' review score. Please choose the group you are interested in."),
+                         
+                         
+                         sliderInput("topmovies", label = h4("Top movies"), min = 10, 
+                                     max = 327, value = 327),
+                         
+                         radioButtons("factor", label = h4("Group by"),
+                                      choices = list("Year" = 1,"Genre" = 2, "Popularity" = 3,
+                                                     "Countries"=4),selected =1)),
+                       
+                      
+                      mainPanel(width=8,                       
+                       plotlyOutput("gmap")))
+            ),
+            
+            tabPanel("Correlation analysis",
+                     sidebarLayout(position="left",
+                     sidebarPanel(width=3,
+                     textInput("interestid", label = h4("Please enter the product id that you are interested"), value = "B001UV4XI8"),
+                     helpText("Example:B001UV4XI8 for Harry Potter and the Deathly Hallows, Part 1 [Blu-ray]"),
+                     textOutput("interestmoviename"),
+                     br(),
+                     uiOutput("interestmovieimg")
+                     ),
+                     
+                     mainPanel(
+                       fluidRow(
+                         column(6,uiOutput("interestmovieinfo")
+                         ),
+                         column(6,
+                                plotlyOutput("interestmoviehist",width="400px",height="400px"))),
+                       fluidRow(
+                         h3("Top related movies"),
+                         dataTableOutput("interestmovietable"))
+                         
+                       )
+    
+                       
+                     )
             )
+
+          
+            
+            
  ),
  #################### end of ---- Menu Item  ####################
 
@@ -126,7 +176,8 @@ shinyUI( fluidPage(
 
 
 ###################About us #############################
-tabPanel("About us",
+tabPanel("About us",icon=icon("reddit-alien"),
+         
          tabItem(
       tabName = "about",
         box(width = 12,

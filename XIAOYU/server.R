@@ -14,6 +14,7 @@ TYPE <- readRDS("~/Desktop/TYPE.Rds")
 Final <- readRDS("~/Desktop/Final.Rds")
 time <- readRDS("~/Desktop/time.Rds")
 data2d <- readRDS("~/Desktop/2ddata.Rds")
+table<-readRDS("~/Desktop/tablescore.Rds")
 
 #shinyserver
 shinyServer(function(input, output) {
@@ -48,6 +49,7 @@ shinyServer(function(input, output) {
   })
   
   ######## Section two  ########
+
   output$reveiw0 <- renderPlotly({
     
     if(input$review == 1){
@@ -156,18 +158,91 @@ shinyServer(function(input, output) {
     
   #####################Similarity######################################
     output$recommap<-renderPlotly({
-      plot_ly(x=data2d$x1,y=data2d$x2,text=data2d$title.y,
-                                   color=data2d$recommendation,
+
+      data<-data2d[order(data2d$recommendation),]
+      plot_ly(x=data$x1,y=data$x2,text=data$title.y,
+                                  # color=data$recommendation,
+                                    symbol=data$recommendation,
                                    colors=c("coral","black"),
-                                   size=as.numeric(data2d$recommendation),
-                                   mode="markers")
+                                   size=as.numeric(data$recommendation),
+                                   mode="markers")%>%
+      layout(title="Recommendation map")
     })
     
     output$gmap<-renderPlotly({
-      plot_ly(x=data2d$x1,y=data2d$x2,text=data2d$title.y,
-              color=data2d$Year,
-              size=as.numeric(data2d$recommendation),
+      
+      film<-data2d[1:input$topmovies,]
+      
+      if(input$factor == 1){
+      plot_ly(x=film$x1,y=film$x2,text=film$title.y,
+              color=film$Year,
+              marker=list(size=10,opacity=0.8),
               mode="markers")
+      }
+      
+      else if(input$factor == 2){
+        plot_ly(x=film$x1,y=film$x2,text=film$title.y,
+                color=film$Type, marker=list(size=10,opacity=0.8),
+                mode="markers")
+      }
+      
+      else if(input$factor == 3){
+        plot_ly(x=film$x1,y=film$x2,text=film$title.y,
+                color=film$summary, marker=list(size=10,opacity=0.8),
+                mode="markers")
+      }
+      
+      else{
+        plot_ly(x=film$x1,y=film$x2,text=film$title.y,
+                color=film$countries, marker=list(size=10,opacity=0.8),
+                mode="markers")
+      }
+      
+    
+    })
+    
+    output$interestmoviename<-renderText({
+      paste("You select: ",data2d[which(data2d$id==input$interestid),]$title.y)
+    })
+    
+    output$interestmovieimg<-renderUI({
+      image_file <- data2d[which(data2d$id==input$interestid),]$image_url
+      tags$img(src= image_file,height=250)
+    })
+    
+    output$interestmoviehist<-renderPlotly({
+      plot_ly(x=table[input$interestid,],ocapacity=0.6,color="aquamarine",type="histogram")%>%
+      layout(title="Histogram of review score",xaxis = list(title = "Score", tickfont = list(size = 11), tickangle = 20,range=c(0,6)),
+             yaxis = list(title = "Number of reviewers"))
+        
+    })
+    
+    datable<-reactive({
+      group=data2d[which(data2d$id==input$interestid),]$km.cluster
+      f<-data2d[data2d$km.cluster==group,]
+      f[,c(1,4,5,6,7,8)]
+      
+    })
+    
+    
+    output$interestmovietable<-renderDataTable({
+      datable()})
+    
+    output$interestmoviemap<-renderPlotly({
+      film<-data2d[data2d$km.cluster==data2d[which(data2d$id==input$interestid),]$km.cluster,]
+      plot_ly(x=film$x1,y=film$x2,text=film$title.y,mode="markers",
+               marker=list(size=10,opacity=0.8))
+    })
+    
+    output$interestmovieinfo<-renderUI({
+      str1<-paste("Movie title: ",data2d[which(data2d$id==input$interestid),]$title.y)
+      str2<-paste("Total review: ",data2d[which(data2d$id==input$interestid),]$summary)
+      str3<-paste("Country: ",data2d[which(data2d$id==input$interestid),]$countries)
+      str4<-paste("Year: ",data2d[which(data2d$id==input$interestid),]$Year)
+      HTML(paste(h4(str1), h4(str2),h4(str3),h4(str4), sep = '<br/>'))
+      
+      
+      
     })
     
     

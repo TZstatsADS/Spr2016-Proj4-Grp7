@@ -22,11 +22,18 @@ table[table == 0] <- NA
 m<-mean(data$review_score)
 table.scale<-scale(table)
 table.scale[is.na(table.scale)] <- m
+
 dist_matrix<-dist(table.scale, method = "euclidean", diag = FALSE, upper = FALSE, p = 2)
 non_metric<-cmdscale(dist_matrix,eig=TRUE,k=2)
 id_2<-data.frame(id=rownames(non_metric$points))
 id_info<-merge(id_2,movie_info,by.x="id",by.y="product_productid",all.x=TRUE)
 x1<-non_metric$points[,1]
 x2<-non_metric$points[,2]
+km<-kmeans(data2d[,1:2],30)
+id_km<-names(km$cluster)
+km_result<-data.frame(id_km,km$cluster)
 data_2<-data.frame(x1,x2,id_info)
+data_2<-merge(data_2,km_result,by.x="id",by.y="id_km")
+data_2<-data_2[order(data_2$summary,decreasing=TRUE),]
 saveRDS(data_2,"2ddata.rds")
+saveRDS(table,"tablescore.rds")
