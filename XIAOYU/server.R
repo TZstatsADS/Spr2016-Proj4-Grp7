@@ -2,22 +2,23 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(plotly)
-require(lubridate)
+library(lubridate)
 library(dygraphs)
 library(xts)
 library(leaflet)
+library(shinydashboard)
 
 ##
-movie <- readRDS("~/Desktop/data.rds")
-score <- readRDS("~/Desktop/score.rds")
-TYPE <- readRDS("~/Desktop/TYPE.Rds")
-Final <- readRDS("~/Desktop/Final.Rds")
-time <- readRDS("~/Desktop/time.Rds")
-data2d <- readRDS("~/Desktop/2ddata.Rds")
-table<-readRDS("~/Desktop/tablescore.Rds")
+movie <- readRDS("data.rds")
+score <- readRDS("score.rds")
+TYPE <- readRDS("TYPE.Rds")
+Final <- readRDS("Final.Rds")
+time <- readRDS("time.Rds")
+data2d <- readRDS("2ddata.Rds")
+table<-readRDS("tablescore.Rds")
 
 #shinyserver
-shinyServer(function(input, output) {
+shinyServer(function(input, output,session) {
 #################### xiaoyu s Menu Item ####################
   
   ######## Section one  ########
@@ -30,8 +31,11 @@ shinyServer(function(input, output) {
       B <- data.frame(Type = names(summary), number = summary)
       rownames(B) <- NULL
       B <- B[c(1:15),]
-      plot_ly(B, labels = Type, values = number, type = "pie") %>% 
-        layout(title = "Number of Movies by Type")
+      plot_ly(B, labels = Type, values = number, type = "pie",marker=list(colors=c(
+        "#8DD3C7", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462" ,"#B3DE69","#FCCDE5" ,"#D9D9D9",
+        "#BC80BD","#CCEBC5","#FBB4AE", "#B3CDE3" ,"#CCEBC5" ,"#DECBE4" ,"#FED9A6"
+      ))) %>% 
+        layout(title = "Number of Movies by Type",paper_bgcolor='rgba(0,0,0,0)')
       
     }
     else {
@@ -41,8 +45,11 @@ shinyServer(function(input, output) {
       rownames(A) <- NULL
       A <- A[-c(1,2),]
       A <- A[c(1:30),]
-      plot_ly(A, labels = Director, values = number, type = "pie") %>% 
-        layout(title = "Number of Movies by Director")
+      plot_ly(A, labels = Director, values = number, type = "pie",marker=list(colors=c(
+        "#FBB4AE", "#B3CDE3", "#CCEBC5", "#DECBE4", "#FED9A6" ,"#FFFFCC","#E5D8BD", "#FDDAEC", "#F2F2F2",
+        "#66C2A5", "#FC8D62" ,"#8DA0CB", "#E78AC3" ,"#A6D854", "#FFD92F" ,"#E5C494" ,"#B3B3B3"
+      ))) %>% 
+        layout(title = "Number of Movies by Director",paper_bgcolor='rgba(0,0,0,0)')
       
     }
     
@@ -157,17 +164,8 @@ shinyServer(function(input, output) {
   #################### end of  xiaoyu s Menu Item #################### 
     
   #####################Similarity######################################
-    output$recommap<-renderPlotly({
 
-      data<-data2d[order(data2d$recommendation),]
-      plot_ly(x=data$x1,y=data$x2,text=data$title.y,
-                                  # color=data$recommendation,
-                                    symbol=data$recommendation,
-                                   colors=c("coral","black"),
-                                   size=as.numeric(data$recommendation),
-                                   mode="markers")%>%
-      layout(title="Recommendation map")
-    })
+
     
     output$gmap<-renderPlotly({
       
@@ -192,10 +190,17 @@ shinyServer(function(input, output) {
                 mode="markers")
       }
       
+      else if (input$factor==4){
+        plot_ly(x=film$x1,y=film$x2,text=film$title.y,
+                color=film$countries, marker=list(size=10,opacity=0.8),colors="Spectral",
+                mode="markers")
+      }
+      
       else{
         plot_ly(x=film$x1,y=film$x2,text=film$title.y,
-                color=film$countries, marker=list(size=10,opacity=0.8),
+                color=film$recommendation, marker=list(size=10,opacity=0.8), colors=c("coral","black"),
                 mode="markers")
+        
       }
       
     
@@ -212,8 +217,9 @@ shinyServer(function(input, output) {
     
     output$interestmoviehist<-renderPlotly({
       plot_ly(x=table[input$interestid,],ocapacity=0.6,color="aquamarine",type="histogram")%>%
-      layout(title="Histogram of review score",xaxis = list(title = "Score", tickfont = list(size = 11), tickangle = 20,range=c(0,6)),
-             yaxis = list(title = "Number of reviewers"))
+      layout(paper_bgcolor='rgba(245,245,245,1)',plot_bgcolor='rgba(245,245,245,1)',title="Histogram of review score",xaxis = list(title = "Score", tickfont = list(size = 11), 
+                                                            tickangle = 20,range=c(0,6) ),
+             yaxis = list(title = "Number of reviewers" ))
         
     })
     
@@ -235,11 +241,12 @@ shinyServer(function(input, output) {
     })
     
     output$interestmovieinfo<-renderUI({
+      str0<-"Movie Infomation:"
       str1<-paste("Movie title: ",data2d[which(data2d$id==input$interestid),]$title.y)
       str2<-paste("Total review: ",data2d[which(data2d$id==input$interestid),]$summary)
       str3<-paste("Country: ",data2d[which(data2d$id==input$interestid),]$countries)
       str4<-paste("Year: ",data2d[which(data2d$id==input$interestid),]$Year)
-      HTML(paste(h4(str1), h4(str2),h4(str3),h4(str4), sep = '<br/>'))
+      HTML(paste(h3(str0),h5(str1), h5(str2),h5(str3),h5(str4), sep = '<br>'))
       
       
       
