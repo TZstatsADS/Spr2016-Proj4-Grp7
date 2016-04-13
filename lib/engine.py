@@ -65,6 +65,7 @@ class RecommendationEngine:
         """Given a user_id and a list of movie_ids, predict ratings for them 
         """
         requested_movies_RDD = self.sc.parallelize(movie_ids).map(lambda x: (user_id, x))
+
         # Get predicted ratings
         ratings = self.__predict_ratings(requested_movies_RDD).collect()
 
@@ -90,26 +91,26 @@ class RecommendationEngine:
 
         # Load ratings data for later use
         logger.info("Loading Ratings data...")
-        ratings_file_path = os.path.join(dataset_path, 'project4', 'data_50_10.csv')
+        ratings_file_path = os.path.join(dataset_path, 'project4', 'final_raw.csv')
         #print ratings_file_path
         ratings_raw_RDD = self.sc.textFile(ratings_file_path)
         #print ratings_raw_RDD.count()
         ratings_raw_data_header = ratings_raw_RDD.take(1)[0]
         self.ratings_RDD = ratings_raw_RDD.filter(lambda line: line!=ratings_raw_data_header)\
-            .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[5]),int(tokens[6]),float(tokens[4]))).cache()
+            .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[4]),int(tokens[5]),float(tokens[3]))).cache()
 
         
 
         # Load movies data for later use
         logger.info("Loading Movies data...")
-        movies_file_path = os.path.join(dataset_path,'project4','movie.csv')
+        movies_file_path = os.path.join(dataset_path,'project4','final_movie.csv')
         movies_raw_RDD = self.sc.textFile(movies_file_path)
         movies_raw_data_header = movies_raw_RDD.take(1)[0]
 
         #### int(tokens[0]),tokens[1],tokens[2] stands for index, product_id, movie_id change it when all names are available
         self.movies_RDD = movies_raw_RDD.filter(lambda line: line!=movies_raw_data_header)\
             .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[0]),tokens[1],tokens[2])).cache()  
-        self.movies_titles_RDD = self.movies_RDD.map(lambda x: (int(x[2]),x[1])).cache()
+        self.movies_titles_RDD = self.movies_RDD.map(lambda x: (int(x[1]),x[2])).cache()
 
 
         # Pre-calculate movies ratings counts
@@ -118,6 +119,6 @@ class RecommendationEngine:
         # Train the model
         self.rank = 60
         self.seed = 5L
-        self.iterations = 15
+        self.iterations = 19
         self.regularization_parameter = 0.1
         self.__train_model() 

@@ -2,13 +2,13 @@ import os
 from pyspark.mllib.recommendation import ALS
 
 datasets_path = os.path.join('..', 'Scripts')
-ratings_file = os.path.join(datasets_path, 'project4', 'data_50_10.csv')
+ratings_file = os.path.join(datasets_path, 'project4', 'final_raw.csv')
 rate_rdd = sc.textFile(ratings_file)
 
 rate_rdd_header = rate_rdd.take(1)[0]
 
 rate_data_rdd = rate_rdd.filter(lambda line: line!=rate_rdd_header)\
-	.map(lambda line: line.split(",")).map(lambda tokens: (tokens[5],tokens[6],tokens[4])).cache()
+	.map(lambda line: line.split(",")).map(lambda tokens: (tokens[4],tokens[5],tokens[3])).cache()
 
 rate_data_rdd.first()
 rate_data_rdd.take(5)
@@ -57,7 +57,7 @@ complete_rate_data_rdd = rate_rdd.filter(lambda line: line!=rate_rdd_header).map
 print "There are %s recommendations in the complete dataset" % (complete_rate_data_rdd.count())
 
 
-movie_file = os.path.join('datasets_path', 'project4', 'movie.csv')
+movie_file = os.path.join(datasets_path, 'project4', 'final_movie.csv')
 complete_movies_raw_data = sc.textFile(movie_file)
 complete_movies_raw_data_header = complete_movies_raw_data.take(1)[0]
 
@@ -65,7 +65,7 @@ complete_movies_raw_data_header = complete_movies_raw_data.take(1)[0]
 complete_movies_data = complete_movies_raw_data.filter(lambda line: line!=complete_movies_raw_data_header)\
     .map(lambda line: line.split(",")).map(lambda tokens: (int(tokens[0]),tokens[1],tokens[2])).cache()  
 
-complete_movies_titles = complete_movies_data.map(lambda x: (int(x[2]),x[1]))
+complete_movies_titles = complete_movies_data.map(lambda x: (int(x[1]),x[2]))
 print "There are %s movies in the complete dataset" % (complete_movies_titles.count())
 
 def get_counts_and_averages(ID_and_ratings_tuple):
@@ -142,19 +142,21 @@ print ('TOP recommended movies (with more than 25 reviews):\n%s' %
 
 
 
-
-
+ssh-keygen
+ssh-copy-id ruixiongshi@dyn-160-39-192-87.dyn.columbia.edu
 
 
 ./sbin/start-master.sh
-./sbin/start-slave.sh
+
+./sbin/stop-master.sh
+./sbin/start-slaves.sh 4 //dyn-160-39-192-204.dyn.columbia.edu:7077
 
 
-~/spark-1.6.1/bin/spark-submit --master spark://HAINAJIANGs-MacBook-Pro.local:7077 --total-executor-cores 14 --executor-memory 6g server.py
+~/spark-1.6.1/bin/spark-submit --master spark://dyn-160-39-192-87.dyn.columbia.edu:7077 --total-executor-cores 20 --executor-memory 10g server.py
 
-curl --data-binary @user_ratings.file http://localhost:8080/0/ratings
+curl --data-binary @user_ratings.file http://0.0.0.0:5419/0/ratings
 
-http://0.0.0.0:5431/10/ratings/top/25
+http://0.0.0.0:5424/10/ratings/top/25
 
 
 
