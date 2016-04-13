@@ -17,11 +17,11 @@ shinyUI( fluidPage(
                        img(src="movie2.jpg", width = 400)   
                    ),     
               box(width=6,
-                  h5("Analysis of Amazon movie review",align="center"),
+                  h5("Analysis of Amazon movie reviews",align="center"),
                   hr(),
-                  p("We focus on the analysis of amazon movie reviews. The date sets contains 110000 reviews of 409 movies on the Amazon.
-                    The analysis mainly develops into three parts. First we summrize the top popular movies and then we explore the time trend. Finally we compute the similarity 
-                    of the movies based on the review scosres."),
+                  p("We focused on the analysis of Amazon movie reviews. The date sets contain 110000 reviews of 409 movies on Amazon.
+                    The analysis mainly develops into three parts. First we summarized the most popular movies and then we explored the time trend. Finally we computed the similarity 
+                    of the movies based on the review scores."),
                   p("Data Source:",
                     a(href = 'http://snap.stanford.edu/data/web-Movies.html', 'Amazon movie review'),
                     br(),"Repo here: ",
@@ -93,9 +93,9 @@ shinyUI( fluidPage(
                                   
                                   tabPanel("Popularity",br(),
                                            fluidRow(
-                                             column(6,plotlyOutput("reveiw0", width="550px",height="300px")),
-                                             column(6,plotlyOutput("reveiw1", width="550px",height="300px")),
-                                             column(12,dygraphOutput("reveiw2", width="900px",height="300px"))),value = 1),
+                                             column(6,plotlyOutput("review0", width="550px",height="300px")),
+                                             column(6,plotlyOutput("review1", width="550px",height="300px")),
+                                             column(12,dygraphOutput("review2", width="900px",height="300px"))),value = 1),
                                             
                                   tabPanel("Timeline",br(),
                                            fluidRow(
@@ -120,8 +120,8 @@ shinyUI( fluidPage(
                      sidebarLayout(position="left",
                        sidebarPanel(
                         h3("2D mapping of the movies"),
-                         helpText("We filter out the movies with > 100 reviews and project them into 2 dimensional space according to 
-                                  users' review score. Please choose the group you are interested in."),
+                         helpText("We filtered out the movies with > 100 reviews and projected them into 2 dimensional space according to 
+                                  users' review scores. Please choose the group you are interested in."),
                          
                          
                          sliderInput("topmovies", label = h4("Top movies"), min = 10, 
@@ -139,7 +139,7 @@ shinyUI( fluidPage(
             tabPanel("Correlation analysis",
                      sidebarLayout(position="left",
                      sidebarPanel(width=3,
-                     textInput("interestid", label = h4("Please enter the product id that you are interested"), value = "B001UV4XI8"),
+                     textInput("interestid", label = h4("Please enter the product id that you are interested in"), value = "B001UV4XI8"),
                      helpText("Example:B001UV4XI8 for Harry Potter and the Deathly Hallows, Part 1 [Blu-ray]"),
                      textOutput("interestmoviename"),
                      br(),
