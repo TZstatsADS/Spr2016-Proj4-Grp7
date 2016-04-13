@@ -2,15 +2,16 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(plotly)
-require(lubridate)
+library(lubridate)
 library(dygraphs)
 library(xts)
 library(leaflet)
 library(shinydashboard)
 
 shinyUI( fluidPage(
-          navbarPage("Amazon Movie Reviews",
-          theme = "bootstrap3.css",
+          navbarPage(
+          "Amazon Movie Reviews",
+          #theme= 'style.css',
 ###################overview part###########################          
           tabPanel("Overview",icon=icon("film"),
               box(width=6,
@@ -109,12 +110,6 @@ shinyUI( fluidPage(
  
  #################### ---- 's Menu Item ####################
  navbarMenu("Similarity",icon=icon("area-chart"),
-            tabPanel("Recommendation analysis",
-
-              mainPanel(
-              plotlyOutput("recommap")
-              )
-            ),
 
             tabPanel("Factor analysis",
                      sidebarLayout(position="left",
@@ -129,7 +124,7 @@ shinyUI( fluidPage(
                          
                          radioButtons("factor", label = h4("Group by"),
                                       choices = list("Year" = 1,"Genre" = 2, "Popularity" = 3,
-                                                     "Countries"=4),selected =1)),
+                                                     "Countries"=4,"Recommendation"=5),selected =1)),
                        
                       
                       mainPanel(width=8,                       
