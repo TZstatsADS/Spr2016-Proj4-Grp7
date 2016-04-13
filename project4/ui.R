@@ -11,7 +11,7 @@ library(shinydashboard)
 shinyUI( fluidPage(
           navbarPage(
           "Amazon Movie Reviews",
-          theme= 'style.css',
+          #theme= 'style.css',
 ###################overview part###########################          
           tabPanel("Overview",icon=icon("film"),
               box(width=6,

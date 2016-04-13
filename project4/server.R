@@ -9,13 +9,15 @@ library(leaflet)
 library(shinydashboard)
 
 ##
-movie <- readRDS("data.rds")
-score <- readRDS("score.rds")
 TYPE <- readRDS("TYPE.Rds")
 Final <- readRDS("Final.Rds")
-time <- readRDS("time.Rds")
-data2d <- readRDS("2ddata.Rds")
-table<-readRDS("tablescore.Rds")
+time <- readRDS("Time.Rds")
+
+
+Data2d <- readRDS("DATA2D.Rds")
+Table<-readRDS("Tablescore.Rds")
+Movie <- readRDS("Data.Rds")
+Score <- readRDS("Score.Rds")
 
 #shinyserver
 shinyServer(function(input, output,session) {
@@ -27,7 +29,7 @@ shinyServer(function(input, output,session) {
     
     if(input$rank == 1) {
       
-      summary <- sort(summary(movie$Type),decreasing = T)
+      summary <- sort(summary(Movie$Type),decreasing = T)
       B <- data.frame(Type = names(summary), number = summary)
       rownames(B) <- NULL
       B <- B[c(1:15),]
@@ -40,7 +42,7 @@ shinyServer(function(input, output,session) {
     }
     else {
       
-      summary <- sort(summary(movie$Director),decreasing = T)
+      summary <- sort(summary(Movie$Director),decreasing = T)
       A <- data.frame(Director = names(summary), number = summary)
       rownames(A) <- NULL
       A <- A[-c(1,2),]
@@ -61,7 +63,7 @@ shinyServer(function(input, output,session) {
     
     if(input$review == 1){
       
-      plot_ly(score, x = title.y, y = summary, color = summary, size = summary, mode = "markers")%>%
+      plot_ly(Score, x = title.y, y = summary, color = summary, size = summary, mode = "markers")%>%
         layout(xaxis = list(title = "", tickfont = list(size = 7), tickangle = 30), 
                yaxis = list(title = "The total number of reviews"),title = "Top 50 Movies")
     
@@ -69,7 +71,7 @@ shinyServer(function(input, output,session) {
     
     else{
     
-      plot_ly(score, x = review, y = n, size = n, color = n, mode = "markers") %>%
+      plot_ly(Score, x = review, y = n, size = n, color = n, mode = "markers") %>%
         layout(xaxis = list(title = "", tickfont = list(size = 7), tickangle = 30),
                yaxis = list(title = "The total number of reviews"),title = "Top 50 Active Users")
     
@@ -151,7 +153,7 @@ shinyServer(function(input, output,session) {
     output$case3 <- renderPlotly({
       
       text <- input$text_year
-      search <- sort(summary(movie$Type[movie$Year == text]),decreasing = T)
+      search <- sort(summary(Movie$Type[Movie$Year == text]),decreasing = T)
       search <- data.frame(names = names(search), search)
       rownames(search) <- NULL
       search <- search[1:15,]
@@ -169,7 +171,7 @@ shinyServer(function(input, output,session) {
     
     output$gmap<-renderPlotly({
       
-      film<-data2d[1:input$topmovies,]
+      film<-Data2d[1:input$topmovies,]
       
       if(input$factor == 1){
       plot_ly(x=film$x1,y=film$x2,text=film$title.y,
@@ -207,45 +209,45 @@ shinyServer(function(input, output,session) {
     })
     
     output$interestmoviename<-renderText({
-      paste("You select: ",data2d[which(data2d$id==input$interestid),]$title.y)
+      paste("You select: ",Data2d[which(Data2d$id==input$interestid),]$title.y)
     })
     
     output$interestmovieimg<-renderUI({
-      image_file <- data2d[which(data2d$id==input$interestid),]$image_url
+      image_file <- Data2d[which(Data2d$id==input$interestid),]$image_url
       tags$img(src= image_file,height=250)
     })
     
     output$interestmoviehist<-renderPlotly({
-      plot_ly(x=table[input$interestid,],ocapacity=0.6,color="aquamarine",type="histogram")%>%
+      plot_ly(x=Table[input$interestid,],ocapacity=0.6,color="aquamarine",type="histogram")%>%
       layout(paper_bgcolor='rgba(245,245,245,1)',plot_bgcolor='rgba(245,245,245,1)',title="Histogram of review score",xaxis = list(title = "Score", tickfont = list(size = 11), 
                                                             tickangle = 20,range=c(0,6) ),
              yaxis = list(title = "Number of reviewers" ))
         
     })
     
-    datable<-reactive({
-      group=data2d[which(data2d$id==input$interestid),]$km.cluster
-      f<-data2d[data2d$km.cluster==group,]
+    daTable<-reactive({
+      group=Data2d[which(Data2d$id==input$interestid),]$km.cluster
+      f<-Data2d[Data2d$km.cluster==group,]
       f[,c(1,4,5,6,7,8)]
       
     })
     
     
-    output$interestmovietable<-renderDataTable({
-      datable()})
+    output$interestmovieTable<-renderDataTable({
+      daTable()})
     
     output$interestmoviemap<-renderPlotly({
-      film<-data2d[data2d$km.cluster==data2d[which(data2d$id==input$interestid),]$km.cluster,]
+      film<-Data2d[Data2d$km.cluster==Data2d[which(Data2d$id==input$interestid),]$km.cluster,]
       plot_ly(x=film$x1,y=film$x2,text=film$title.y,mode="markers",
                marker=list(size=10,opacity=0.8))
     })
     
     output$interestmovieinfo<-renderUI({
       str0<-"Movie Infomation:"
-      str1<-paste("Movie title: ",data2d[which(data2d$id==input$interestid),]$title.y)
-      str2<-paste("Total review: ",data2d[which(data2d$id==input$interestid),]$summary)
-      str3<-paste("Country: ",data2d[which(data2d$id==input$interestid),]$countries)
-      str4<-paste("Year: ",data2d[which(data2d$id==input$interestid),]$Year)
+      str1<-paste("Movie title: ",Data2d[which(Data2d$id==input$interestid),]$title.y)
+      str2<-paste("Total review: ",Data2d[which(Data2d$id==input$interestid),]$summary)
+      str3<-paste("Country: ",Data2d[which(Data2d$id==input$interestid),]$countries)
+      str4<-paste("Year: ",Data2d[which(Data2d$id==input$interestid),]$Year)
       HTML(paste(h3(str0),h5(str1), h5(str2),h5(str3),h5(str4), sep = '<br>'))
       
       
